@@ -1,0 +1,27 @@
+{
+    "name": "peehaa/aerys-playground",
+    "description": "Text RPG powered by Aerys",
+    "keywords": ["mvc", "amp", "magic"],
+    "homepage": "https://github.com/PeeHaa/aerys-playground",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Pieter Hordijk",
+            "email": "info@pieterhordijk.com",
+            "homepage": "https://pieterhordijk.com",
+            "role": "devloper"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"AerysPlayground\\": "src/"}
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7",
+        "amphp/aerys": "dev-master"
+    },
+    "require-dev": {
+        "peehaa/minifine": "1.0.*"
+    }
+}
