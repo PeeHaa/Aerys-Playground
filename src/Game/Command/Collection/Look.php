@@ -2,80 +2,87 @@
 
 namespace AerysPlayground\Game\Command\Collection;
 
+use AerysPlayground\Game\Command\Gate;
+use AerysPlayground\Game\Command\Parameter\Direction;
 use AerysPlayground\Game\Command\Command as UserCommand;
-use AerysPlayground\Game\Map\Park;
 use AerysPlayground\Game\Character\Player\Player;
+use AerysPlayground\Game\Field\Map\TrainingYard;
+use AerysPlayground\Game\Position\Point;
+
 
 class Look implements Command
 {
-    public function doesMatch(UserCommand $command): bool
+    private $gate;
+
+    private $parameter;
+
+    public function __construct(Gate $gate)
     {
-        if ($command->getCommand() !== 'look') {
-            return false;
-        }
-
-        if ($command->hasParameters() && !in_array($command->getFirstParameter(), ['north', 'east', 'south', 'west'], true)) {
-            return false;
-        }
-
-        return true;
+        $this->gate      = $gate;
+        $this->parameter = new Direction();
     }
 
-    public function execute(UserCommand $command, Park $map, Player $player): string
+    public function doesMatch(UserCommand $command, Player $player): bool
+    {
+        return $command->getCommand() !== 'look'
+            && (!$command->hasParameters() || $this->parameter->isParameterValid($command->getFirstParameter()))
+            && $this->gate->meetsAccessLevel($player);
+    }
+
+    public function execute(UserCommand $command, TrainingYard $map, Player $player): array
     {
         if ($command->hasParameters()) {
-            return $this->lookAtCoordinates(
-                $map,
-                $command->getFirstParameter(),
-                $player->getPositionX(),
-                $player->getPositionY()
-            );
+            $this->parameter->setValue($command->getFirstParameter());
+
+            return [$this->lookAtPoint($map, $player->getPoint()), []];
         }
 
-        return $this->lookLocally($map, $player->getPositionX(), $player->getPositionY());
+        return [$this->lookLocally($map, $player->getPoint()), []];
     }
 
-    private function lookAtCoordinates(Park $map, string $direction, int $x, int $y)
+    private function lookAtPoint(TrainingYard $map, Point $point)
     {
-        switch (strtolower($direction)) {
-            case 'north':
-                return 'To the north you see ' . $map->getTileAtPosition($x, $y - 1)->getName() . "\n";
+        $newPoint = clone $point;
 
-            case 'east':
-                return 'To the east you see ' . $map->getTileAtPosition($x + 1, $y)->getName() . "\n";
+        call_user_func([$newPoint, $this->parameter->getMovementMethod()]);
 
-            case 'south':
-                return 'To the south you see ' . $map->getTileAtPosition($x, $y + 1)->getName() . "\n";
-
-            case 'west':
-                return 'To the west you see ' . $map->getTileAtPosition($x - 1, $y)->getName() . "\n";
-        }
+        return 'To the ' . $this->parameter->getValue() . ' you see #ff0' . $map->getTileAtPoint($newPoint)->getName() . ' #fff.' . "\n";
     }
 
-    private function lookLocally(Park $map, int $x, int $y)
+    private function lookLocally(TrainingYard $map, Point $currentPoint)
     {
-        $currentTile = $map->getTileAtPosition($x, $y);
-        $northTile   = $map->getTileAtPosition($x, $y - 1);
-        $eastTile    = $map->getTileAtPosition($x + 1, $y);
-        $southTile   = $map->getTileAtPosition($x, $y + 1);
-        $westTile    = $map->getTileAtPosition($x - 1, $y);
+        $northPoint   = clone $currentPoint;
+        $eastPoint    = clone $currentPoint;
+        $southPoint   = clone $currentPoint;
+        $westPoint    = clone $currentPoint;
+
+        $northPoint->moveNorth();
+        $eastPoint->moveEast();
+        $southPoint->moveSouth();
+        $westPoint->moveWest();
+
+        $currentTile = $map->getTileAtPoint($currentPoint);
+        $northTile   = $map->getTileAtPoint($northPoint);
+        $eastTile    = $map->getTileAtPoint($eastPoint);
+        $southTile   = $map->getTileAtPoint($southPoint);
+        $westTile    = $map->getTileAtPoint($westPoint);
 
         $result = $currentTile->getDescription() . "\n\n";
 
         if ($northTile->canBeWalkedOn()) {
-            $result .= "To the north you see " . $northTile->getName() . "\n";
+            $result .= 'To the north you see #ff0' . $northTile->getName() . '#fff. ' . "\n";
         }
 
         if ($eastTile->canBeWalkedOn()) {
-            $result .= "To the east you see " . $eastTile->getName() . "\n";
+            $result .= 'To the east you see #ff0' . $eastTile->getName() . '#fff. ' . "\n";
         }
 
         if ($southTile->canBeWalkedOn()) {
-            $result .= "To the south you see " . $southTile->getName() . "\n";
+            $result .= 'To the south you see #ff0' . $southTile->getName() . '#fff. ' . "\n";
         }
 
         if ($westTile->canBeWalkedOn()) {
-            $result .= "To the west you see " . $westTile->getName() . "\n";
+            $result .= 'To the west you see #ff0' . $westTile->getName() . '#fff. ' . "\n";
         }
 
         return $result;

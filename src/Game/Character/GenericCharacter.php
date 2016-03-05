@@ -3,6 +3,7 @@
 namespace AerysPlayground\Game\Character;
 
 use AerysPlayground\Game\Character\Player\Player;
+use AerysPlayground\Game\Position\Point;
 
 abstract class GenericCharacter
 {
@@ -10,9 +11,7 @@ abstract class GenericCharacter
 
     protected $isAlive = false;
 
-    protected $positionX = 0;
-
-    protected $positionY = 0;
+    protected $point;
 
     protected $hitPoints;
 
@@ -22,7 +21,8 @@ abstract class GenericCharacter
 
     public function __construct(int $id)
     {
-        $this->id = $id;
+        $this->id    = $id;
+        $this->point = new Point(0, 0);
     }
 
     public function getId(): int
@@ -35,24 +35,38 @@ abstract class GenericCharacter
         return $this->isAlive;
     }
 
-    public function getPositionX(): int
+    public function getPoint(): Point
     {
-        return $this->positionX;
+        return $this->point;
     }
 
-    public function getPositionY(): int
+    public function moveNorth()
     {
-        return $this->positionY;
+        $this->point->moveNorth();
     }
 
-    public function moveTo(int $x, int $y)
+    public function moveEast()
+    {
+        $this->point->moveEast();
+    }
+
+    public function moveSouth()
+    {
+        $this->point->moveSouth();
+    }
+
+    public function moveWest()
+    {
+        $this->point->moveWest();
+    }
+
+    public function moveTo(Point $point)
     {
         if (!$this->canMove()) {
             return;
         }
 
-        $this->positionX = $x;
-        $this->positionY = $y;
+        $this->point = $point;
     }
 
     public function resurrect()

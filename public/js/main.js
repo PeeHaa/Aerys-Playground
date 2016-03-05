@@ -23,15 +23,15 @@ AerysPlayground.Message = (function() {
     };
 
     Message.prototype.hasToken = function() {
-        return token;
-    };
-
-    Message.prototype.getToken = function() {
         return token !== null;
     };
 
-    Message.prototype.getExtraData = function(elem) {
-        return extraData[elem];
+    Message.prototype.getToken = function() {
+        return token;
+    };
+
+    Message.prototype.getExtraData = function() {
+        return extraData;
     };
 
     return Message;
@@ -40,18 +40,20 @@ AerysPlayground.Message = (function() {
 AerysPlayground.Output = (function() {
     'use strict';
 
+    var formatter;
     var output;
     var form;
 
-    function Output() {
-        output = document.querySelector('.content');
-        form   = document.querySelector('form');
+    function Output(_formatter) {
+        formatter = _formatter
+        output    = document.querySelector('.content');
+        form      = document.querySelector('form');
     }
 
     Output.prototype.write = function(message) {
         var line = document.createElement('p');
 
-        line.appendChild(document.createTextNode(message.getMessage()));
+        line.appendChild(formatter.format(message.getMessage()));
 
         output.insertBefore(line, form);
     };
@@ -59,22 +61,78 @@ AerysPlayground.Output = (function() {
     return Output;
 }());
 
+/**
+ * Thanks to all my friends in room 17 <3
+ */
+AerysPlayground.Formatter = (function() {
+    'use strict';
+
+    const colorRegexp = /#(?:[0-9a-fA-F]{3}){1,2}/;
+
+    function Formatter() {
+
+    }
+
+    Formatter.prototype.format = function(inputString) {
+        let outputNode = document.createElement('span');
+        let part, nextIndex, newNode, color, tempNode, currNode = outputNode;
+        do{
+            nextIndex = inputString.search(colorRegexp);
+            console.log(nextIndex);
+            nextIndex = nextIndex !== -1 ? nextIndex : inputString.length;
+            part = inputString.substring(0, nextIndex);
+            inputString = inputString.substr(nextIndex);
+            currNode.textContent = part;
+            color = inputString.match(colorRegexp);
+            color = color ? color[0] : '';
+            if( ! color ){
+                continue;
+            }
+            inputString = inputString.substr(color.length);
+            tempNode = document.createElement('span');
+            tempNode.style.color = color;
+            currNode.appendChild(tempNode);
+            currNode = tempNode;
+        }while(inputString.length);
+
+        return outputNode;
+    };
+
+    return Formatter;
+}());
+
 (function () {
     'use strict';
 
-    var output     = new AerysPlayground.Output();
-    var input      = document.querySelector('input');
-    var connection = new WebSocket('ws://localhost:8081/ws');
-    var token      = null;
+    var output      = new AerysPlayground.Output(new AerysPlayground.Formatter());
+    var input       = document.querySelector('input');
+    var connection  = new WebSocket('ws://localhost:8081/ws');
+    var token       = null;
+    var lastMessage = null;
+
+    var lastCommands = [];
 
     connection.addEventListener('message', function(data) {
-        var message = new AerysPlayground.Message(data.data);
+        lastMessage = new AerysPlayground.Message(data.data);
 
-        if (message.hasToken()) {
-            token = message.getToken();
+        if (lastMessage.hasToken()) {
+            token = lastMessage.getToken();
+            console.log(token);
         }
 
-        output.write(message);
+        output.write(lastMessage);
+
+        if (lastMessage.getExtraData().hasOwnProperty('nextPrefix')
+            && (
+                lastMessage.getExtraData()['nextPrefix'].indexOf('register3 ') === 0
+                || lastMessage.getExtraData()['nextPrefix'].indexOf('register4 ') === 0
+                || lastMessage.getExtraData()['nextPrefix'].indexOf('join3 ') === 0
+            )
+        ) {
+            input.setAttribute('type', 'password');
+        } else {
+            input.setAttribute('type', 'text');
+        }
     });
 
     document.querySelector('form').addEventListener('submit', function(e) {
@@ -85,9 +143,18 @@ AerysPlayground.Output = (function() {
             return;
         }
 
+        var prefix = '';
+
+        if (lastMessage.getExtraData().hasOwnProperty('nextPrefix')) {
+            prefix = lastMessage.getExtraData()['nextPrefix'];
+        }
+
+        lastCommands.push(input.value);
+
         connection.send(JSON.stringify({
             token: token,
-            content: input.value
+            content: prefix + input.value,
+            extraData: lastMessage.getExtraData()
         }));
 
         input.value = '';

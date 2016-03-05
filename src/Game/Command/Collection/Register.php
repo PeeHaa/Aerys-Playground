@@ -2,17 +2,28 @@
 
 namespace AerysPlayground\Game\Command\Collection;
 
+use AerysPlayground\Game\Command\Gate;
 use AerysPlayground\Game\Command\Command as UserCommand;
+use AerysPlayground\Game\Character\Player\Player;
 
 class Register implements Command
 {
-    public function doesMatch(UserCommand $command): bool
+    private $gate;
+
+    public function __construct(Gate $gate)
     {
-        return $command->getCommand() === 'register';
+        $this->gate = $gate;
     }
 
-    public function execute(int $clientId): string
+    public function doesMatch(UserCommand $command, Player $player): bool
     {
-        return 'You successfully joined the realm of Aerys. Use the `look` command to look around.';
+        return $command->getCommand() === 'register' && $this->gate->equalsAccessLevel($player);
+    }
+
+    public function execute(): array
+    {
+        return ['Please enter the username you would like to use.', [
+            'nextPrefix' => 'register2 ',
+        ]];
     }
 }

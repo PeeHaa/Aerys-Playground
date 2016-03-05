@@ -3,6 +3,7 @@
 namespace AerysPlayground\Game\Character;
 
 use AerysPlayground\Game\Character\Player\Player;
+use AerysPlayground\Game\Position\Point;
 
 interface Character
 {
@@ -18,11 +19,17 @@ interface Character
 
     public function isAlive(): bool;
 
-    public function getPositionX(): int;
+    public function getPoint(): Point;
 
-    public function getPositionY(): int;
+    public function moveNorth();
 
-    public function moveTo(int $x, int $y);
+    public function moveEast();
+
+    public function moveSouth();
+
+    public function moveWest();
+
+    public function moveTo(Point $point);
 
     public function resurrect();
 

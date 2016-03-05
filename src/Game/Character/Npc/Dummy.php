@@ -4,8 +4,13 @@ namespace AerysPlayground\Game\Character\Npc;
 
 use AerysPlayground\Game\Character\GenericCharacter;
 
-class Dummy extends GenericCharacter// implements Npc
+class Dummy extends GenericCharacter implements Npc
 {
+    public function getName(): string
+    {
+        return 'Dummy';
+    }
+
     public function getDescription(): string
     {
         return 'Just a test dummy...';
@@ -29,5 +34,10 @@ class Dummy extends GenericCharacter// implements Npc
     public function getTotalHitPoints(): int
     {
         return 10;
+    }
+
+    public function getAttackStrength(): int
+    {
+        return 0;
     }
 }

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d9101bcc3f29a69491bccc55ef2cfd5c",
-    "content-hash": "8ebca877704ad00b818031c4adaf4332",
+    "hash": "a45342bc4caf5440eeac493bd7f28227",
+    "content-hash": "5cebe0c38638ff724982f2243cdf90ff",
     "packages": [
         {
             "name": "amphp/aerys",
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/aerys.git",
-                "reference": "f452bd1e16df056f3ac550ee07f2a3ab129106fd"
+                "reference": "c6dd58174d29d14834520b61f17865a0609ad994"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/aerys/zipball/f452bd1e16df056f3ac550ee07f2a3ab129106fd",
-                "reference": "f452bd1e16df056f3ac550ee07f2a3ab129106fd",
+                "url": "https://api.github.com/repos/amphp/aerys/zipball/c6dd58174d29d14834520b61f17865a0609ad994",
+                "reference": "c6dd58174d29d14834520b61f17865a0609ad994",
                 "shasum": ""
             },
             "require": {
@@ -85,7 +85,7 @@
                 "server",
                 "websocket"
             ],
-            "time": "2016-02-26 18:15:27"
+            "time": "2016-02-27 14:17:16"
         },
         {
             "name": "amphp/amp",

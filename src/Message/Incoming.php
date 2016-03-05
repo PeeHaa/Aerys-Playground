@@ -10,6 +10,8 @@ class Incoming
 
     private $content;
 
+    private $extraData = [];
+
     public function __construct(int $clientId, string $message)
     {
         $this->clientId = $clientId;
@@ -22,6 +24,10 @@ class Incoming
 
         $this->token   = $decodedMessage['token'];
         $this->content = $decodedMessage['content'];
+
+        if ($decodedMessage['extraData']) {
+            $this->extraData = $decodedMessage['extraData'];
+        }
     }
 
     private function isValid(array $message): bool
@@ -37,5 +43,10 @@ class Incoming
     public function getContent(): string
     {
         return $this->content;
+    }
+
+    public function getExtraData(): array
+    {
+        return $this->extraData;
     }
 }

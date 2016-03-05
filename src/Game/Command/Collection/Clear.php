@@ -6,7 +6,7 @@ use AerysPlayground\Game\Command\Gate;
 use AerysPlayground\Game\Command\Command as UserCommand;
 use AerysPlayground\Game\Character\Player\Player;
 
-class Join implements Command
+class Clear implements Command
 {
     private $gate;
 
@@ -17,14 +17,14 @@ class Join implements Command
 
     public function doesMatch(UserCommand $command, Player $player): bool
     {
-        return $command->getCommand() === 'join'
-            && $this->gate->equalsAccessLevel($player);
+        return $command->getCommand() === 'clear'
+            && $this->gate->meetsAccessLevel($player);
     }
 
     public function execute(): array
     {
-        return ['Please enter your username.', [
-            'nextPrefix' => 'join2 ',
+        return ['', [
+            'clear' => true,
         ]];
     }
 }

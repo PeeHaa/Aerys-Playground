@@ -2,9 +2,18 @@
 
 namespace AerysPlayground\Game\Tile;
 
+use AerysPlayground\Game\Position\Point;
+
 class Thicket implements Tile
 {
     const IDENTIFIER = 'x';
+
+    private $point;
+
+    public function __construct(Point $point)
+    {
+        $this->point = $point;
+    }
 
     public function getName(): string
     {
@@ -14,6 +23,11 @@ class Thicket implements Tile
     public function getDescription(): string
     {
         return '...';
+    }
+
+    public function getPoint(): Point
+    {
+        return $this->point;
     }
 
     public function canBeWalkedOn(): bool

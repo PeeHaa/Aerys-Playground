@@ -6,16 +6,32 @@ use AerysPlayground\Game\Character\GenericCharacter;
 use AerysPlayground\Game\Level\Newb;
 use AerysPlayground\Game\Level\Level;
 use AerysPlayground\Game\Character\Npc\Npc;
+use AerysPlayground\Game\Position\Point;
 
 class User extends GenericCharacter implements Player
 {
+    private $name;
+
+    private $accessLevel;
+
     private $level;
 
-    public function __construct(int $id)
+    public function __construct(int $id, string $name, int $accessLevel)
     {
         parent::__construct($id);
 
-        $this->level = new Newb();
+        $this->name        = $name;
+        $this->accessLevel = $accessLevel;
+        $this->level       = new Newb();
+    }
+
+    public function logIn(string $name, int $accessLevel, Point $point)
+    {
+        $this->name        = $name;
+        $this->accessLevel = $accessLevel;
+        $this->point       = $point;
+
+        $this->resurrect();
     }
 
     public function getName(): string
@@ -23,9 +39,14 @@ class User extends GenericCharacter implements Player
         return 'Player ' . $this->getId();
     }
 
+    public function getAccessLevel(): int
+    {
+        return $this->accessLevel;
+    }
+
     public function getLevel(): Level
     {
-        return $this->level;;
+        return $this->level;
     }
 
     public function canMove(): bool

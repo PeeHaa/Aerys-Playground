@@ -19,7 +19,8 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7",
-        "amphp/aerys": "dev-master"
+        "amphp/aerys": "dev-master",
+        "amphp/file": "0.1.*"
     },
     "require-dev": {
         "peehaa/minifine": "1.0.*"

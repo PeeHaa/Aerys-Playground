@@ -12,7 +12,7 @@ class Command
 
     public function __construct(Incoming $message)
     {
-        $commandData = explode(' ', $message->getContent());
+        $commandData = explode(' ', trim($message->getContent()));
 
         $this->command = $commandData[0];
 
@@ -31,12 +31,22 @@ class Command
         return (bool) count($this->parameters);
     }
 
+    public function getNumberOfParameters(): int
+    {
+        return count($this->parameters);
+    }
+
     public function getFirstParameter(): string
     {
-        if (!$this->hasParameters()) {
+        return $this->getParameterByIndex(0);
+    }
+
+    public function getParameterByIndex(int $index): string
+    {
+        if (!isset($this->parameters[$index])) {
             return '';
         }
 
-        return $this->parameters[0];
+        return $this->parameters[$index];
     }
 }

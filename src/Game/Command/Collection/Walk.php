@@ -2,74 +2,60 @@
 
 namespace AerysPlayground\Game\Command\Collection;
 
+use AerysPlayground\Game\Command\Gate;
+use AerysPlayground\Game\Command\Parameter\Direction;
 use AerysPlayground\Game\Command\Command as UserCommand;
-use AerysPlayground\Game\Map\Park;
 use AerysPlayground\Game\Character\Player\Player;
+use AerysPlayground\Game\Field\Map\TrainingYard;
+use AerysPlayground\Game\Position\Point;
 use AerysPlayground\Game\Tile\Tile;
 
 class Walk implements Command
 {
-    public function doesMatch(UserCommand $command): bool
+    private $gate;
+
+    private $parameter;
+
+    public function __construct(Gate $gate)
     {
-        if ($command->getCommand() !== 'walk') {
-            return false;
-        }
-
-        if ($command->hasParameters() && !in_array($command->getFirstParameter(), ['north', 'east', 'south', 'west'], true)) {
-            return false;
-        }
-
-        return true;
+        $this->gate      = $gate;
+        $this->parameter = new Direction();
     }
 
-    public function execute(UserCommand $command, Park $map, Player $player): string
+    public function doesMatch(UserCommand $command, Player $player): bool
     {
-        return $this->move($map, $player, $command->getFirstParameter(), $player->getPositionX(), $player->getPositionY());
+        return $command->getCommand() !== 'walk'
+            && $command->hasParameters()
+            && $this->gate->meetsAccessLevel($player)
+            && $this->parameter->isParameterValid($command->getFirstParameter());
     }
 
-    private function move(Park $map, Player $player, string $direction, int $x, int $y)
+    public function execute(UserCommand $command, TrainingYard $map, Player $player): array
     {
-        $newTile = $this->getNewTile($map, $direction, $x, $y);
+        $this->parameter->setValue($command->getFirstParameter());
+
+        return [$this->move($map, $player), []];
+    }
+
+    private function move(TrainingYard $map, Player $player)
+    {
+        $newTile = $this->getNewTile($map, $player->getPoint());
 
         if (!$newTile->canBeWalkedOn()) {
             return 'You cannot go that way.';
         }
 
-        switch (strtolower($direction)) {
-            case 'north':
-                $player->moveTo($x, $y - 1);
-                break;
+        call_user_func([$player, $this->parameter->getMovementMethod()]);
 
-            case 'east':
-                $player->moveTo($x + 1, $y);
-                break;
-
-            case 'south':
-                $player->moveTo($x, $y + 1);
-                break;
-
-            case 'west':
-                $player->moveTo($x - 1, $y);
-                break;
-        }
-
-        return 'You walk to the ' . strtolower($direction) . ' and find ' . $newTile->getName();
+        return 'You walk to the ' . $this->parameter->getValue() . ' and find #ff0' . $newTile->getName() . '#fff.';
     }
 
-    private function getNewTile(Park $map, string $direction, int $x, int $y): Tile
+    private function getNewTile(TrainingYard $map, Point $point): Tile
     {
-        switch (strtolower($direction)) {
-            case 'north':
-                return $map->getTileAtPosition($x, $y - 1);
+        $newPoint = clone $point;
 
-            case 'east':
-                return $map->getTileAtPosition($x + 1, $y);
+        call_user_func([$newPoint, $this->parameter->getMovementMethod()]);
 
-            case 'south':
-                return $map->getTileAtPosition($x, $y + 1);
-
-            case 'west':
-                return $map->getTileAtPosition($x - 1, $y);
-        }
+        return $map->getTileAtPoint($newPoint);
     }
 }

@@ -6,7 +6,9 @@ use Aerys\Websocket;
 use Aerys\Request;
 use Aerys\Response;
 use Aerys\Websocket\Endpoint;
-use Aerys\Websocket\Message;;
+use Aerys\Websocket\Message;
+use AerysPlayground\Game\Character\Player\AccessLevel;
+use AerysPlayground\Game\Character\Player\User;
 use AerysPlayground\Game\Command\Executor;
 use AerysPlayground\Message\Incoming;
 use AerysPlayground\Message\Single;
@@ -37,7 +39,10 @@ class Controller implements Websocket
 
     public function onOpen(int $clientId, $handshakeData)
     {
-        $this->clients[$clientId] = bin2hex(random_bytes(56));
+        $this->clients[$clientId] = [
+            'token'  => bin2hex(random_bytes(56)),
+            'player' => new User($clientId, 'Player ' . $clientId, AccessLevel::GUEST),
+        ];
 
         $this->sendUserConnectedMessage($clientId);
 
@@ -46,15 +51,15 @@ class Controller implements Websocket
 
     private function sendUserConnectedMessage(int $clientId)
     {
-        $this->endpoint->send(null, (new Multi('Player ' . $clientId . ' connected'))->buildMessage());
+        $this->endpoint->send(null, (new Multi('#0f0Player ' . $clientId . ' connected'))->buildMessage());
     }
 
     private function sendWelcomeMessage(int $clientId)
     {
         $message = new Single(
             $clientId,
-            $this->clients[$clientId],
-            'Welcome Player ' . $clientId . '. Use the `join` command to sign in or the `register` command to create an account.'
+            $this->clients[$clientId]['token'],
+            'Welcome ' . $this->clients[$clientId]['player']->getName() . '. Use the #f00join #fffcommand to sign in or the #f00register #fffcommand to create an account.'
         );
 
         $this->endpoint->send($clientId, $message->buildMessage());
@@ -62,10 +67,13 @@ class Controller implements Websocket
 
     public function onData(int $clientId, Message $msg)
     {
+        $responseData = yield from $this->executor->runCommand(new Incoming($clientId, yield  $msg), $this->clients[$clientId]['player']);
+
         $response = new Single(
             $clientId,
-            $this->clients[$clientId],
-            $this->executor->runCommand(new Incoming($clientId, yield  $msg), $clientId)
+            $this->clients[$clientId]['token'],
+            $responseData[0],
+            $responseData[1]
         );
 
         $this->endpoint->send($response->getClientId(), $response->buildMessage());
@@ -73,7 +81,7 @@ class Controller implements Websocket
 
     public function onClose(int $clientId, int $code, string $reason)
     {
-        $this->endpoint->send(null, 'Player ' . $clientId . ' disconnected');
+        $this->endpoint->send(null, '#0f0' . $this->clients[$clientId]['player']->getName() . ' disconnected');
     }
 
     public function onStop()
