@@ -23,7 +23,7 @@ class TrainingYard// implements Map
     const BOT_SPAWNING_POINTS = [
         ['x', 'x', 'x', 'x'],
         ['x', ' ', ' ', 'x'],
-        ['x', ' ', ' ', 'x'],
+        ['x', 'd', 'd', 'x'],
         ['x', ' ', ' ', 'x'],
         ['x', 'd', 'd', 'x'],
         ['x', ' ', ' ', 'x'],
