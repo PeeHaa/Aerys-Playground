@@ -22,8 +22,8 @@ class HelpUser implements Command
     public function doesMatch(UserCommand $command, Player $player): bool
     {
         return $command->getCommand() === 'help'
-        && (!$command->hasParameters() || $this->parameter->isParameterValid($command->getFirstParameter()))
-        && $this->gate->meetsAccessLevel($player);
+            && (!$command->hasParameters() || $this->parameter->isParameterValid($command->getFirstParameter()))
+            && $this->gate->meetsAccessLevel($player);
     }
 
     public function execute(UserCommand $command): array
@@ -39,7 +39,7 @@ class HelpUser implements Command
 
     private function getCommands(): string
     {
-        return 'The available commands are: help, look and walk. If you want help with a specific command please type `help {command}`.';
+        return 'The available commands are: #f00help#fff, #f00info#fff, #f00look#fff, #f00walk#fff and #f00attack#fff. If you want help with a specific command please type #f00help {command}#fff.';
     }
 
     private function getHelpWithCommand(): string
@@ -48,11 +48,17 @@ class HelpUser implements Command
             case 'help':
                 return 'You\'re looking at it...';
 
+            case 'info':
+                return 'Gives information about your level and experience points earned.';
+
             case 'look':
-                return 'Gives information about the place you currently are. Use `look {direction} to look at a specific direction. E.g. `look north`.';
+                return 'Gives information about the place you currently are. Use #f00look {direction}#fff to look at a specific direction. E.g. #f00look north#fff.';
 
             case 'walk':
-                return 'Walk towards a specific direction. E.g. `walk north`.';
+                return 'Walk towards a specific direction. E.g. #f00walk north#fff.';
+
+            case 'attack':
+                return 'Attacks a bot in the current position.';
         }
     }
 }

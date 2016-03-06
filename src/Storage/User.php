@@ -2,6 +2,7 @@
 
 namespace AerysPlayground\Storage;
 
+use AerysPlayground\Game\Character\Player\Player;
 use function Amp\File\exists;
 use function Amp\File\get;
 use function Amp\File\put;
@@ -67,5 +68,24 @@ class User
         $user = yield from $this->get($username);
 
         return password_verify($password, $user['password']);
+    }
+
+    public function setPosition(Player $player): \Generator
+    {
+        $users = yield from $this->getAll();
+
+        $users[strtolower($player->getName())]['positionX'] = $player->getPoint()->getX();
+        $users[strtolower($player->getName())]['positionY'] = $player->getPoint()->getY();
+
+        yield put($this->filename, json_encode($users));
+    }
+
+    public function setExperiencePoints(Player $player)
+    {
+        $users = yield from $this->getAll();
+
+        $users[strtolower($player->getName())]['xp'] = $player->getExperience();
+
+        yield put($this->filename, json_encode($users));
     }
 }

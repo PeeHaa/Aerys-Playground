@@ -45,4 +45,43 @@ class Collection
             }
         }
     }
+
+    public function getBotsAtPoint(Point $point): array
+    {
+        if (array_key_exists($point->getY(), $this->bots) && array_key_exists($point->getX(), $this->bots[$point->getY()])) {
+            return [$this->bots[$point->getY()][$point->getX()]];
+        }
+
+        return [];
+    }
+
+    public function getBotsAliveAtPoint(Point $point): array
+    {
+        $bots = $this->getBotsAtPoint($point);
+
+        if (!$bots || !$bots[0]->isAlive()) {
+            return [];
+        }
+
+        return $bots;
+    }
+
+    public function resurrect(): array
+    {
+        $resurrectedBots = [];
+
+        foreach ($this->bots as $y => $row) {
+            foreach ($row as $bot) {
+                if (!$bot->mustRespawn()) {
+                    continue;
+                }
+
+                $bot->resurrect();
+
+                $resurrectedBots[] = $bot;
+            }
+        }
+
+        return $resurrectedBots;
+    }
 }

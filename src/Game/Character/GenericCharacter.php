@@ -62,10 +62,6 @@ abstract class GenericCharacter
 
     public function moveTo(Point $point)
     {
-        if (!$this->canMove()) {
-            return;
-        }
-
         $this->point = $point;
     }
 
@@ -76,12 +72,14 @@ abstract class GenericCharacter
         $this->hits      = [];
     }
 
-    public function hitByPlayer(Player $player)
+    public function hitByPlayer(Player $player): int
     {
         $hitPoints = $player->getLevel()->getNumeric() * random_int(0, 2);
 
         $this->registerPlayerHit($player, $hitPoints);
         $this->hit($hitPoints);
+
+        return $hitPoints;
     }
 
     protected function hit(int $hitPoints)

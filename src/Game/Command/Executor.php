@@ -5,8 +5,10 @@ namespace AerysPlayground\Game\Command;
 use AerysPlayground\Game\Field\Map\TrainingYard;
 use AerysPlayground\Game\Character\Player;
 use AerysPlayground\Game\Character\Player\User;
+use AerysPlayground\Game\Position\Point;
 use AerysPlayground\Message\Incoming;
 use AerysPlayground\Game\Command\Command as UserCommand;
+use AerysPlayground\Game\Command\Collection\About;
 use AerysPlayground\Game\Command\Collection\Command;
 use AerysPlayground\Game\Command\Collection\HelpGuest;
 use AerysPlayground\Game\Command\Collection\HelpUser;
@@ -17,8 +19,10 @@ use AerysPlayground\Game\Command\Collection\Register4;
 use AerysPlayground\Game\Command\Collection\Join;
 use AerysPlayground\Game\Command\Collection\Join2;
 use AerysPlayground\Game\Command\Collection\Join3;
+use AerysPlayground\Game\Command\Collection\Info;
 use AerysPlayground\Game\Command\Collection\Look;
 use AerysPlayground\Game\Command\Collection\Walk;
+use AerysPlayground\Game\Command\Collection\Attack;
 
 class Executor
 {
@@ -53,6 +57,10 @@ class Executor
 
     private function executeCommand(Command $command, UserCommand $userCommand, User $player)
     {
+        if ($command instanceof About) {
+            return $command->execute();
+        }
+
         if ($command instanceof HelpGuest) {
             return $command->execute($userCommand);
         }
@@ -89,12 +97,32 @@ class Executor
             return yield from $command->execute($userCommand, $this->map, $player);
         }
 
+        if ($command instanceof Info) {
+            return $command->execute($player);
+        }
+
         if ($command instanceof Look) {
             return $command->execute($userCommand, $this->map, $player);
         }
 
         if ($command instanceof Walk) {
-            return $command->execute($userCommand, $this->map, $player);
+            return yield from $command->execute($userCommand, $this->map, $player);
         }
+
+        if ($command instanceof Attack) {
+            return $command->execute($this->map, $player);
+        }
+    }
+
+    // @todo this really shouldn't be in here
+    public function resurrectBots(): array
+    {
+        return $this->map->resurrectBots();
+    }
+
+    // @todo this really shouldn't be in here
+    public function getPlayersAtPoint(Point $point): array
+    {
+        return $this->map->getPlayersAtPoint($point);
     }
 }

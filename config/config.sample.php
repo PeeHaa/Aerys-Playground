@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace AerysPlayground\Cli;
+namespace AerysPlayground\Config;
 
 use Aerys\Host;
 use function Aerys\root;

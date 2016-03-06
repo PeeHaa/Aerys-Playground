@@ -7,29 +7,84 @@ use Aerys\Request;
 use Aerys\Response;
 use Aerys\Websocket\Endpoint;
 use Aerys\Websocket\Message;
+use AerysPlayground\Game\Character\Player\Player;
+use AerysPlayground\Game\Command\Executor;
+use AerysPlayground\Storage\User as Storage;
 use AerysPlayground\Game\Character\Player\AccessLevel;
 use AerysPlayground\Game\Character\Player\User;
-use AerysPlayground\Game\Command\Executor;
 use AerysPlayground\Message\Incoming;
 use AerysPlayground\Message\Single;
 use AerysPlayground\Message\Multi;
+use function Amp\repeat;
 
 class Controller implements Websocket
 {
     private $executor;
 
+    private $storage;
+
     private $endpoint;
 
     private $clients = [];
 
-    public function __construct(Executor $executor)
+    public function __construct(Executor $executor, Storage $storage)
     {
         $this->executor = $executor;
+        $this->storage  = $storage;
     }
 
     public function onStart(Endpoint $endpoint)
     {
         $this->endpoint = $endpoint;
+
+        repeat(function() {
+            yield from $this->handleAttacks();
+        }, 2000);
+
+        repeat(function() {
+            $this->resurrectBots();
+        }, 100);
+    }
+
+    private function handleAttacks()
+    {
+        foreach ($this->clients as $clientId => $client) {
+            if (!$client['player']->isAttacking()) {
+                continue;
+            }
+
+            $opponent  = $client['player']->getAttacker();
+            $hitPoints = $opponent->hitByPlayer($client['player']);
+
+            if ($hitPoints === 0) {
+                $this->endpoint->send(null, (new Single($clientId, $client['token'], 'Your attack misses #f30' . $opponent->getName() . '#fff.'))->buildMessage());
+            } else {
+                $this->endpoint->send(null, (new Single($clientId, $client['token'], 'You hit #f30' . $opponent->getName() . '#fff (' . $hitPoints . ' HP)'))->buildMessage());
+            }
+
+            if (!$opponent->isAlive()) {
+                $experienceGained = $opponent->getEarnedExperience($client['player']);
+
+                $this->endpoint->send(null, (new Single($clientId, $client['token'], 'You killed #f30' . $opponent->getName() . '#fff and gained ' . $experienceGained . ' xp.'))->buildMessage());
+
+                $client['player']->stopAttack($experienceGained);
+
+                yield from $this->storage->setExperiencePoints($client['player']);
+            }
+        }
+    }
+
+    private function resurrectBots()
+    {
+        $resurrectedBots = $this->executor->resurrectBots();
+
+        foreach ($resurrectedBots as $bot) {
+            $players = $this->executor->getPlayersAtPoint($bot->getPoint());
+
+            foreach ($players as $player) {
+                $this->endpoint->send(null, (new Single($player->getid(), $this->clients[$player->getid()]['token'], '#f30' . $bot->getName() . '#fff entered the scene.'))->buildMessage());
+            }
+        }
     }
 
     public function onHandshake(Request $request, Response $response)

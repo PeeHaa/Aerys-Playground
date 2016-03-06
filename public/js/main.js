@@ -56,6 +56,8 @@ AerysPlayground.Output = (function() {
         line.appendChild(formatter.format(message.getMessage()));
 
         output.insertBefore(line, form);
+
+        document.body.scrollTop = document.body.scrollHeight;
     };
 
     return Output;

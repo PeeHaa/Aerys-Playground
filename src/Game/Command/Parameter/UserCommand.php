@@ -8,7 +8,7 @@ class UserCommand
 
     public function isParameterValid(string $parameter): bool
     {
-        return in_array($parameter, ['help', 'clear', 'look', 'walk'], true);
+        return in_array($parameter, ['help', 'clear', 'info', 'look', 'walk', 'attack'], true);
     }
 
     public function setValue(string $parameter)

@@ -2,6 +2,7 @@
 
 namespace AerysPlayground\Game\Character\Player;
 
+use AerysPlayground\Game\Character\Character;
 use AerysPlayground\Game\Character\GenericCharacter;
 use AerysPlayground\Game\Level\Newb;
 use AerysPlayground\Game\Level\Level;
@@ -16,6 +17,10 @@ class User extends GenericCharacter implements Player
 
     private $level;
 
+    private $isAttacking = null;
+
+    private $experiencePoints = 0;
+
     public function __construct(int $id, string $name, int $accessLevel)
     {
         parent::__construct($id);
@@ -25,18 +30,19 @@ class User extends GenericCharacter implements Player
         $this->level       = new Newb();
     }
 
-    public function logIn(string $name, int $accessLevel, Point $point)
+    public function logIn(string $name, int $accessLevel, int $experiencePoints, Point $point)
     {
-        $this->name        = $name;
-        $this->accessLevel = $accessLevel;
-        $this->point       = $point;
+        $this->name             = $name;
+        $this->accessLevel      = $accessLevel;
+        $this->experiencePoints = $experiencePoints;
+        $this->point            = $point;
 
         $this->resurrect();
     }
 
     public function getName(): string
     {
-        return 'Player ' . $this->getId();
+        return $this->name;
     }
 
     public function getAccessLevel(): int
@@ -47,6 +53,33 @@ class User extends GenericCharacter implements Player
     public function getLevel(): Level
     {
         return $this->level;
+    }
+
+    public function getExperience(): int
+    {
+        return $this->experiencePoints;
+    }
+
+    public function isAttacking(): bool
+    {
+        return $this->isAttacking !== null;
+    }
+
+    public function startAttack(Character $character)
+    {
+        $this->isAttacking = $character;
+    }
+
+    public function stopAttack(int $experienceGained)
+    {
+        $this->isAttacking = null;
+
+        $this->experiencePoints += $experienceGained;
+    }
+
+    public function getAttacker(): Character
+    {
+        return $this->isAttacking;
     }
 
     public function canMove(): bool
@@ -77,7 +110,7 @@ class User extends GenericCharacter implements Player
     public function getAttackStrength(): int
     {
         return random_int(
-            floor(($this->getLevel()->getNumeric() / 2) * $this->getLevel()->getNumeric()),
+            (int) floor(($this->getLevel()->getNumeric() / 2) * $this->getLevel()->getNumeric()),
             $this->getLevel()->getNumeric() * $this->getLevel()->getNumeric()
         );
     }

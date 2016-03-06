@@ -8,6 +8,10 @@ use AerysPlayground\Game\Character\Npc\Npc;
 
 interface Player extends Character
 {
+    public function isAttacking(): bool;
+
+    public function startAttack(Character $character);
+
     public function getAccessLevel(): int;
 
     public function getLevel(): Level;

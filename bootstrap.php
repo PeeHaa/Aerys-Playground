@@ -12,6 +12,7 @@ use AerysPlayground\Game\Field\Bot\Collection as BotCollection;
 use AerysPlayground\Game\Field\Player\Collection as PlayerCollection;
 use AerysPlayground\Game\Character\Player\AccessLevel;
 use AerysPlayground\Game\Command\Gate;
+use AerysPlayground\Game\Command\Collection\About;
 use AerysPlayground\Game\Command\Collection\Clear;
 use AerysPlayground\Game\Command\Collection\HelpGuest;
 use AerysPlayground\Game\Command\Collection\HelpUser;
@@ -22,8 +23,10 @@ use AerysPlayground\Game\Command\Collection\Register4;
 use AerysPlayground\Game\Command\Collection\Join;
 use AerysPlayground\Game\Command\Collection\Join2;
 use AerysPlayground\Game\Command\Collection\Join3;
+use AerysPlayground\Game\Command\Collection\Info;
 use AerysPlayground\Game\Command\Collection\Look;
 use AerysPlayground\Game\Command\Collection\Walk;
+use AerysPlayground\Game\Command\Collection\Attack;
 use function Aerys\router;
 use function Aerys\websocket;
 
@@ -38,6 +41,7 @@ $executor = new Executor(new TrainingYard(
     new PlayerCollection()
 ));
 
+$executor->registerCommand(new About(new Gate(AccessLevel::GUEST)));
 $executor->registerCommand(new Clear(new Gate(AccessLevel::GUEST)));
 $executor->registerCommand(new HelpGuest(new Gate(AccessLevel::GUEST)));
 $executor->registerCommand(new HelpUser(new Gate(AccessLevel::USER)));
@@ -48,7 +52,9 @@ $executor->registerCommand(new Register4(new Gate(AccessLevel::GUEST), $storage)
 $executor->registerCommand(new Join(new Gate(AccessLevel::GUEST)));
 $executor->registerCommand(new Join2(new Gate(AccessLevel::GUEST), $storage));
 $executor->registerCommand(new Join3(new Gate(AccessLevel::GUEST), $storage));
+$executor->registerCommand(new Info(new Gate(AccessLevel::USER)));
 $executor->registerCommand(new Look(new Gate(AccessLevel::USER)));
-$executor->registerCommand(new Walk(new Gate(AccessLevel::USER)));
+$executor->registerCommand(new Walk(new Gate(AccessLevel::USER), $storage));
+$executor->registerCommand(new Attack(new Gate(AccessLevel::USER)));
 
-$router = router()->route('GET', '/ws', websocket(new Controller($executor)));
+$router = router()->route('GET', '/ws', websocket(new Controller($executor, $storage)));

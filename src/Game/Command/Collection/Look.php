@@ -24,7 +24,7 @@ class Look implements Command
 
     public function doesMatch(UserCommand $command, Player $player): bool
     {
-        return $command->getCommand() !== 'look'
+        return $command->getCommand() === 'look'
             && (!$command->hasParameters() || $this->parameter->isParameterValid($command->getFirstParameter()))
             && $this->gate->meetsAccessLevel($player);
     }
@@ -44,7 +44,7 @@ class Look implements Command
     {
         $newPoint = clone $point;
 
-        call_user_func([$newPoint, $this->parameter->getMovementMethod()]);
+        $newPoint->{$this->parameter->getMovementMethod()}();
 
         return 'To the ' . $this->parameter->getValue() . ' you see #ff0' . $map->getTileAtPoint($newPoint)->getName() . ' #fff.' . "\n";
     }
@@ -85,6 +85,15 @@ class Look implements Command
             $result .= 'To the west you see #ff0' . $westTile->getName() . '#fff. ' . "\n";
         }
 
+        if ($bots = $this->getBotsLocally($map, $currentPoint)) {
+            $result .= '#f30' . $bots[0]->getName() . '#fff is here to #f00attack#fff. ' . "\n";
+        }
+
         return $result;
+    }
+
+    private function getBotsLocally(TrainingYard $map, Point $point): array
+    {
+        return $map->getBotsAliveAtPoint($point);
     }
 }

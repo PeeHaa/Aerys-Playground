@@ -7,4 +7,6 @@ use AerysPlayground\Game\Character\Character;
 interface Npc extends Character
 {
     public function getDescription(): string;
+
+    public function getRespawnTime(): \DateInterval;
 }

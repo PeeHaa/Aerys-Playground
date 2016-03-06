@@ -15,8 +15,6 @@ interface Character
 
     public function doesRespawn(): bool;
 
-    public function respawnTime(): \DateInterval;
-
     public function isAlive(): bool;
 
     public function getPoint(): Point;
@@ -35,7 +33,7 @@ interface Character
 
     public function getTotalHitPoints(): int;
 
-    public function hitByPlayer(Player $player);
+    public function hitByPlayer(Player $player): int;
 
     public function getHitPoints(): int;
 

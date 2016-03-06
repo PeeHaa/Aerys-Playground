@@ -51,7 +51,7 @@ class Join3 implements Command
 
         $user = yield from $this->storage->get($command->getFirstParameter());
 
-        $player->logIn($user['username'], AccessLevel::USER, new Point($user['positionX'], $user['positionY']));
+        $player->logIn($user['username'], AccessLevel::USER, $user['xp'], new Point($user['positionX'], $user['positionY']));
 
         $map->addPlayer($player);
 
