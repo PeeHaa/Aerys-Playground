@@ -108,7 +108,7 @@ AerysPlayground.Formatter = (function() {
 
     var output      = new AerysPlayground.Output(new AerysPlayground.Formatter());
     var input       = document.querySelector('input');
-    var connection  = new WebSocket('ws://localhost:8081/ws');
+    var connection  = new WebSocket('wss://aerys.pieterhordijk.com/ws');
     var token       = null;
     var lastMessage = null;
 
