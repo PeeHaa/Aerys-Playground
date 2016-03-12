@@ -10,6 +10,8 @@ interface Level
 
     public function getNumeric(): int;
 
+    public function getExperiencePoints(): int;
+
     public function getAttackStrength(): int;
 
     public function getHitPoints(): int;

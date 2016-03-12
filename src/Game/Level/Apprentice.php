@@ -25,6 +25,11 @@ class Apprentice implements Level
         return 2;
     }
 
+    public function getExperiencePoints(): int
+    {
+        return self::EXPERIENCE_POINTS;
+    }
+
     public function getAttackStrength(): int
     {
         return random_int(self::ATTACK_POINTS[0], self::ATTACK_POINTS[1]);

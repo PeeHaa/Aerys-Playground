@@ -2,6 +2,10 @@
 
 namespace AerysPlayground;
 
+use AerysPlayground\Game\Level\Ladder;
+use AerysPlayground\Game\Level\Newb;
+use AerysPlayground\Game\Level\Apprentice;
+use AerysPlayground\Game\Level\Master;
 use AerysPlayground\Storage\User;
 use AerysPlayground\Game\Command\Executor;
 use AerysPlayground\Game\Field\Map\TrainingYard;
@@ -35,11 +39,16 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 $storage = new User(__DIR__ . '/data/users.json');
 
+$ladder = new Ladder();
+$ladder->addLevel(new Newb());
+$ladder->addLevel(new Apprentice());
+$ladder->addLevel(new Master());
+
 $executor = new Executor(new TrainingYard(
     new TileCollection(new TileFactory()),
     new BotCollection(new BotFactory()),
     new PlayerCollection()
-));
+), $ladder);
 
 $executor->registerCommand(new About(new Gate(AccessLevel::GUEST)));
 $executor->registerCommand(new Clear(new Gate(AccessLevel::GUEST)));

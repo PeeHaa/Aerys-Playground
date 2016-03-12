@@ -6,6 +6,7 @@ use AerysPlayground\Game\Command\Gate;
 use AerysPlayground\Storage\User as Storage;
 use AerysPlayground\Game\Command\Command as UserCommand;
 use AerysPlayground\Game\Character\Player\Player;
+use AerysPlayground\Game\Level\Ladder;
 use AerysPlayground\Game\Character\Player\AccessLevel;
 use AerysPlayground\Game\Field\Map\TrainingYard;
 use AerysPlayground\Game\Position\Point;
@@ -29,7 +30,7 @@ class Join3 implements Command
             && $this->gate->equalsAccessLevel($player);
     }
 
-    public function execute(UserCommand $command, TrainingYard $map, Player $player): \Generator
+    public function execute(UserCommand $command, TrainingYard $map, Player $player, Ladder $ladder): \Generator
     {
         if ($command->getNumberOfParameters() > 2) {
             return ['Password cannot contain spaces. Please enter your password.', [
@@ -51,7 +52,7 @@ class Join3 implements Command
 
         $user = yield from $this->storage->get($command->getFirstParameter());
 
-        $player->logIn($user['username'], AccessLevel::USER, $user['xp'], new Point($user['positionX'], $user['positionY']));
+        $player->logIn($user['username'], AccessLevel::USER, $user['xp'], new Point($user['positionX'], $user['positionY']), $ladder->getLevelBasedOnExperiencePoints($user['xp']));
 
         $map->addPlayer($player);
 

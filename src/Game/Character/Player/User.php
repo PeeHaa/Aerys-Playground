@@ -4,8 +4,8 @@ namespace AerysPlayground\Game\Character\Player;
 
 use AerysPlayground\Game\Character\Character;
 use AerysPlayground\Game\Character\GenericCharacter;
-use AerysPlayground\Game\Level\Newb;
 use AerysPlayground\Game\Level\Level;
+use AerysPlayground\Game\Level\Newb;
 use AerysPlayground\Game\Character\Npc\Npc;
 use AerysPlayground\Game\Position\Point;
 
@@ -30,12 +30,13 @@ class User extends GenericCharacter implements Player
         $this->level       = new Newb();
     }
 
-    public function logIn(string $name, int $accessLevel, int $experiencePoints, Point $point)
+    public function logIn(string $name, int $accessLevel, int $experiencePoints, Point $point, Level $level)
     {
         $this->name             = $name;
         $this->accessLevel      = $accessLevel;
         $this->experiencePoints = $experiencePoints;
         $this->point            = $point;
+        $this->level            = $level;
 
         $this->resurrect();
     }

@@ -3,6 +3,7 @@
 namespace AerysPlayground\Game\Command;
 
 use AerysPlayground\Game\Field\Map\TrainingYard;
+use AerysPlayground\Game\Level\Ladder;
 use AerysPlayground\Game\Character\Player;
 use AerysPlayground\Game\Character\Player\User;
 use AerysPlayground\Game\Position\Point;
@@ -28,11 +29,14 @@ class Executor
 {
     private $map;
 
+    private $ladder;
+
     private $commands = [];
 
-    public function __construct(TrainingYard $map)
+    public function __construct(TrainingYard $map, Ladder $ladder)
     {
-        $this->map = $map;
+        $this->map    = $map;
+        $this->ladder = $ladder;
     }
 
     public function registerCommand(Command $command)
@@ -94,7 +98,7 @@ class Executor
         }
 
         if ($command instanceof Join3) {
-            return yield from $command->execute($userCommand, $this->map, $player);
+            return yield from $command->execute($userCommand, $this->map, $player, $this->ladder);
         }
 
         if ($command instanceof Info) {
