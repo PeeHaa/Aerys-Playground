@@ -7,7 +7,6 @@ use Aerys\Request;
 use Aerys\Response;
 use Aerys\Websocket\Endpoint;
 use Aerys\Websocket\Message;
-use AerysPlayground\Game\Character\Player\Player;
 use AerysPlayground\Game\Command\Executor;
 use AerysPlayground\Storage\User as Storage;
 use AerysPlayground\Game\Character\Player\AccessLevel;
@@ -43,7 +42,7 @@ class Controller implements Websocket
 
         repeat(function() {
             $this->resurrectBots();
-        }, 100);
+        }, 1000);
     }
 
     private function handleAttacks()
